@@ -1,4 +1,6 @@
 import "package:flutter/material.dart";
+import "./game_button.dart";
+import "./lines.dart";
 
 class GameBoard extends StatefulWidget {
   const GameBoard({Key? key}) : super(key: key);
@@ -9,8 +11,18 @@ class GameBoard extends StatefulWidget {
 
 class _GameBoardState extends State<GameBoard> {
 
+
+  void onGestureTapFunction(int index){
+    print("Counter 2 : $index");
+  }
+
   List<Widget> getGameBoard(){
     List<Widget> columnElements = [];
+    List<int> gameProgress = [];
+    for(int k=0;k<9;k++){
+      gameProgress.add(0);
+    }
+    // gameProgress[3] = 2;
     int counter = 0;
     for(int i=0;i<5;i++){
       // for each row
@@ -21,39 +33,19 @@ class _GameBoardState extends State<GameBoard> {
           if(j%2==0){
             // for each button
             rowElement.add(
-              GestureDetector(
-                onTap:(){
-                  print("tapping $i $j counter : $counter");
-                },
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.24,
-                  height: MediaQuery.of(context).size.height * 0.155,
-                  color: Colors.blueGrey[100],
-                  child: const Center(
-                    child : Text(
-                        "X",
-                      style:TextStyle(
-                        fontSize: 80.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.redAccent,
-                      ),
-                    ),
-                  ),
-                ),
-              )
+              GameButton(
+                counter: counter,
+                onGestureTap: onGestureTapFunction,
+                  buttonContent : gameProgress[counter]
+              ),
             );
             counter += 1;
           } else {
             // for vertical lines
             rowElement.add(
-              Container(
-                height: MediaQuery.of(context).size.height * 0.157,
-                width: MediaQuery.of(context).size.width * 0.035,
-                color: Colors.black,
-              ),
+              VerticalLine(),
             );
           }
-
         }
         columnElements.add(
           Row(
@@ -64,11 +56,7 @@ class _GameBoardState extends State<GameBoard> {
       } else {
         //for horizontal lines
         columnElements.add(
-          Container(
-            width: double.infinity,
-            height: MediaQuery.of(context).size.height * 0.014,
-            color: Colors.black,
-          ),
+          HorizontalLine(),
         );
       }
     }
