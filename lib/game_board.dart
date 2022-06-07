@@ -74,16 +74,9 @@ class _GameBoardState extends State<GameBoard> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
+        SizedBox(
           width: double.infinity,
-          height: MediaQuery.of(context).size.height * 0.12,
-          color: Colors.red,
-          // child: Row(
-          //   children: [
-          //     Column(),
-          //     Column(),
-          //   ],
-          // ),
+          height: MediaQuery.of(context).size.height * 0.01,
         ),
         Center(
           child:StreamBuilder(
@@ -91,12 +84,13 @@ class _GameBoardState extends State<GameBoard> {
             initialData: true,
             builder: (context,snapshot){
               dynamic info = snapshot.data;
-              String displayText = info ? "Player 1's turn" : "Player 2's turn";
+              int playerNumber = info ? 1 : 2;
               return Text(
-                displayText,
+                "Player $playerNumber's turn",
                 style: TextStyle(
                   fontSize: 30.0,
                   color: info ? Colors.red : Colors.blue,
+                  fontWeight: FontWeight.bold,
                 ),
               );
             },
@@ -125,20 +119,13 @@ class _GameBoardState extends State<GameBoard> {
           width: double.infinity,
           height: MediaQuery.of(context).size.height * 0.1,
           // color: Colors.red,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: (){
-                  _gameBloc.resetGame();
-                },
-                child: const Text("Reset Game"),
-              ),
-              ElevatedButton(
-                onPressed: (){},
-                child: const Text("Reset Stats"),
-              ),
-            ],
+          child: Center(
+            child: ElevatedButton(
+              onPressed: (){
+                _gameBloc.resetGame();
+              },
+              child: const Text("Reset Game"),
+            ),
           ),
         ),
       ],
