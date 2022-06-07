@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "./game_button.dart";
 import "./lines.dart";
+import "./game_bloc.dart";
 
 class GameBoard extends StatefulWidget {
   const GameBoard({Key? key}) : super(key: key);
@@ -11,17 +12,16 @@ class GameBoard extends StatefulWidget {
 
 class _GameBoardState extends State<GameBoard> {
 
+  GameBloc _gameBloc = GameBloc();
 
   void onGestureTapFunction(int index){
-    print("Counter 2 : $index");
+    _gameBloc.tappedButtonIndexSink.add(index);
+    // print("Counter 2 : $index");
   }
 
-  List<Widget> getGameBoard(){
+  List<Widget> getGameBoard(List<int>? gameData){
     List<Widget> columnElements = [];
-    List<int> gameProgress = [];
-    for(int k=0;k<9;k++){
-      gameProgress.add(0);
-    }
+    List<int> gameProgress = gameData ?? [0,0,0,0,0,0,0,0,0];
     // gameProgress[3] = 2;
     int counter = 0;
     for(int i=0;i<5;i++){
@@ -36,7 +36,7 @@ class _GameBoardState extends State<GameBoard> {
               GameButton(
                 counter: counter,
                 onGestureTap: onGestureTapFunction,
-                  buttonContent : gameProgress[counter]
+                buttonContent : gameProgress[counter],
               ),
             );
             counter += 1;
@@ -72,12 +72,23 @@ class _GameBoardState extends State<GameBoard> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Container(
+      child: SizedBox(
         width: MediaQuery.of(context).size.width*0.8,
         height: MediaQuery.of(context).size.height*0.5,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: getGameBoard(),
+        child: StreamBuilder(
+          stream: _gameBloc.gameBoardContentStream,
+          initialData: const [
+            0,0,0,
+            0,0,0,
+            0,0,0
+          ],
+          builder: (context,snapshot){
+            dynamic gameData = snapshot.data;
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: getGameBoard(gameData),
+            );
+          },
         ),
       ),
     );

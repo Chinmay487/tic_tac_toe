@@ -1,7 +1,6 @@
 import "package:flutter/material.dart";
 
 class GameButton extends StatelessWidget {
-  // const GameButton({Key? key}) : super(key: key);
 
   final int? counter,buttonContent;
   final dynamic? onGestureTap;
@@ -17,10 +16,13 @@ class GameButton extends StatelessWidget {
     Color color1 = buttonContent == 1? Colors.redAccent : Colors.white;
     Color color2 = buttonContent == 2? Colors.blue : color1;
 
+
+    void onButtonTapFunction(){
+      onGestureTap(counter);
+    }
+
     return GestureDetector(
-      onTap:(){
-        onGestureTap(counter);
-      },
+      onTap:buttonContent == 0 ? onButtonTapFunction : null,
       child: Container(
         width: MediaQuery.of(context).size.width * 0.24,
         height: MediaQuery.of(context).size.height * 0.155,
