@@ -12,11 +12,10 @@ class GameBoard extends StatefulWidget {
 
 class _GameBoardState extends State<GameBoard> {
 
-  GameBloc _gameBloc = GameBloc();
+  final GameBloc _gameBloc = GameBloc();
 
   void onGestureTapFunction(int index){
     _gameBloc.tappedButtonIndexSink.add(index);
-    // print("Counter 2 : $index");
   }
 
   List<Widget> getGameBoard(List<int>? gameData){
@@ -67,30 +66,82 @@ class _GameBoardState extends State<GameBoard> {
   @override
   void dispose(){
     super.dispose();
+    _gameBloc.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width*0.8,
-        height: MediaQuery.of(context).size.height*0.5,
-        child: StreamBuilder(
-          stream: _gameBloc.gameBoardContentStream,
-          initialData: const [
-            0,0,0,
-            0,0,0,
-            0,0,0
-          ],
-          builder: (context,snapshot){
-            dynamic gameData = snapshot.data;
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: getGameBoard(gameData),
-            );
-          },
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          width: double.infinity,
+          height: MediaQuery.of(context).size.height * 0.12,
+          color: Colors.red,
+          // child: Row(
+          //   children: [
+          //     Column(),
+          //     Column(),
+          //   ],
+          // ),
         ),
-      ),
+        Center(
+          child:StreamBuilder(
+            stream: _gameBloc.isPlayer1Stream,
+            initialData: true,
+            builder: (context,snapshot){
+              dynamic info = snapshot.data;
+              String displayText = info ? "Player 1's turn" : "Player 2's turn";
+              return Text(
+                displayText,
+                style: TextStyle(
+                  fontSize: 30.0,
+                  color: info ? Colors.red : Colors.blue,
+                ),
+              );
+            },
+          ),
+        ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width*0.8,
+          height: MediaQuery.of(context).size.height*0.5,
+          child: StreamBuilder(
+            stream: _gameBloc.gameBoardContentStream,
+            initialData: const [
+              0,0,0,
+              0,0,0,
+              0,0,0
+            ],
+            builder: (context,snapshot){
+              dynamic gameData = snapshot.data;
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: getGameBoard(gameData),
+              );
+            },
+          ),
+        ),
+        SizedBox(
+          width: double.infinity,
+          height: MediaQuery.of(context).size.height * 0.1,
+          // color: Colors.red,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: (){
+                  _gameBloc.resetGame();
+                },
+                child: const Text("Reset Game"),
+              ),
+              ElevatedButton(
+                onPressed: (){},
+                child: const Text("Reset Stats"),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
