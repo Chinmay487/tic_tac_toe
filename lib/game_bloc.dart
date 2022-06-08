@@ -22,37 +22,36 @@ class GameBloc {
   Stream<bool> get isPlayer1Stream => _isPlayer1Controller.stream;
   Sink<bool> get isPlayer1Sink => _isPlayer1Controller.sink;
 
+  // Stream controller to get is there a winner or not
+  final _gameWinnerController = StreamController<int>();
+  Stream<int> get winnerStream => _gameWinnerController.stream;
+  Sink<int> get winnerSink => _gameWinnerController.sink;
+
+
   void onButtonTap(int index) {
-    // print("$_isPlayer1 $index");
     gameProgress[index] = _isPlayer1 ? 1 : 2;
     gameBoardContentSink.add(gameProgress);
     _isPlayer1 = !_isPlayer1;
     isPlayer1Sink.add(_isPlayer1);
-    checkWinner();
+    int winner = checkWinner();
+    if(winner == 1 || winner == 2 || winner == 0){
+      winnerSink.add(winner);
+    }
   }
 
   void resetGame() {
-    gameProgress = [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-    ];
+    gameProgress = [0,0,0,0,0,0,0,0,0,];
     _isPlayer1 = true;
     gameBoardContentSink.add(gameProgress);
     isPlayer1Sink.add(_isPlayer1);
+    winnerSink.add(-1);
   }
 
   // 0 1 2
   // 3 4 5
   // 6 7 8
 
-  void checkWinner() {
+  int checkWinner() {
     if (gameProgress[0] == 1 && gameProgress[1] == 1 && gameProgress[2] == 1 ||
         gameProgress[3] == 1 && gameProgress[4] == 1 && gameProgress[5] == 1 ||
         gameProgress[6] == 1 && gameProgress[7] == 1 && gameProgress[8] == 1 ||
@@ -61,8 +60,7 @@ class GameBloc {
         gameProgress[2] == 1 && gameProgress[5] == 1 && gameProgress[8] == 1 ||
         gameProgress[0] == 1 && gameProgress[4] == 1 && gameProgress[8] == 1 ||
         gameProgress[2] == 1 && gameProgress[4] == 1 && gameProgress[6] == 1 ) {
-      print("player 1 won");
-      resetGame();
+      return 1;
     }
     if (gameProgress[0] == 2 && gameProgress[1] == 2 && gameProgress[2] == 2 ||
         gameProgress[3] == 2 && gameProgress[4] == 2 && gameProgress[5] == 2 ||
@@ -72,16 +70,19 @@ class GameBloc {
         gameProgress[2] == 2 && gameProgress[5] == 2 && gameProgress[8] == 2 ||
         gameProgress[0] == 2 && gameProgress[4] == 2 && gameProgress[8] == 2 ||
         gameProgress[2] == 2 && gameProgress[4] == 2 && gameProgress[6] == 2 ) {
-      print("player 2 won");
-      resetGame();
+      return 2;
     }
-
+    if(!gameProgress.contains(0)){
+      return 0;
+    }
+    return -1;
   }
 
   GameBloc() {
     _isPlayer1 = true;
     gameBoardContentSink.add(gameProgress);
     isPlayer1Sink.add(_isPlayer1);
+    winnerSink.add(checkWinner());
     tappedButtonIndexStream.listen(onButtonTap);
   }
 
@@ -89,5 +90,6 @@ class GameBloc {
     _buttonTappedIndexController.close();
     _gameBoardContentController.close();
     _isPlayer1Controller.close();
+    _gameWinnerController.close();
   }
 }

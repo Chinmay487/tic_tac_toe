@@ -11,31 +11,69 @@ class GameBoard extends StatefulWidget {
 }
 
 class _GameBoardState extends State<GameBoard> {
-
   final GameBloc _gameBloc = GameBloc();
 
-  void onGestureTapFunction(int index){
+  void displayDialog(String message) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Game Result"),
+            content: Text(message),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Rematch'),
+                onPressed: () {
+                  _gameBloc.resetGame();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  _GameBoardState() {
+    _gameBloc.winnerStream.listen((event) {
+      switch (event) {
+        case 0:
+          displayDialog("It's Draw");
+          break;
+        case 1:
+          displayDialog("Player 1 Won");
+          break;
+        case 2:
+          displayDialog("Player 2 Won");
+          break;
+        default:
+          null;
+      }
+    });
+  }
+
+  void onGestureTapFunction(int index) {
     _gameBloc.tappedButtonIndexSink.add(index);
   }
 
-  List<Widget> getGameBoard(List<int>? gameData){
+  List<Widget> getGameBoard(List<int>? gameData) {
     List<Widget> columnElements = [];
-    List<int> gameProgress = gameData ?? [0,0,0,0,0,0,0,0,0];
+    List<int> gameProgress = gameData ?? [0, 0, 0, 0, 0, 0, 0, 0, 0];
     // gameProgress[3] = 2;
     int counter = 0;
-    for(int i=0;i<5;i++){
+    for (int i = 0; i < 5; i++) {
       // for each row
       List<Widget> rowElement = [];
-      if(i%2==0){
+      if (i % 2 == 0) {
         //for each row
-        for(int j=0;j<5;j++){
-          if(j%2==0){
+        for (int j = 0; j < 5; j++) {
+          if (j % 2 == 0) {
             // for each button
             rowElement.add(
               GameButton(
                 counter: counter,
                 onGestureTap: onGestureTapFunction,
-                buttonContent : gameProgress[counter],
+                buttonContent: gameProgress[counter],
               ),
             );
             counter += 1;
@@ -49,7 +87,7 @@ class _GameBoardState extends State<GameBoard> {
         columnElements.add(
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[ ...rowElement ],
+            children: <Widget>[...rowElement],
           ),
         );
       } else {
@@ -62,9 +100,27 @@ class _GameBoardState extends State<GameBoard> {
     return columnElements;
   }
 
+  Future<void> showMessage() async {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Some Title"),
+            content: const Text("Some Content"),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  _gameBloc.resetGame();
+                },
+                child: const Text("Rematch"),
+              )
+            ],
+          );
+        });
+  }
 
   @override
-  void dispose(){
+  void dispose() {
     super.dispose();
     _gameBloc.dispose();
   }
@@ -79,10 +135,10 @@ class _GameBoardState extends State<GameBoard> {
           height: MediaQuery.of(context).size.height * 0.01,
         ),
         Center(
-          child:StreamBuilder(
+          child: StreamBuilder(
             stream: _gameBloc.isPlayer1Stream,
             initialData: true,
-            builder: (context,snapshot){
+            builder: (context, snapshot) {
               dynamic info = snapshot.data;
               int playerNumber = info ? 1 : 2;
               return Text(
@@ -97,16 +153,12 @@ class _GameBoardState extends State<GameBoard> {
           ),
         ),
         SizedBox(
-          width: MediaQuery.of(context).size.width*0.8,
-          height: MediaQuery.of(context).size.height*0.5,
+          width: MediaQuery.of(context).size.width * 0.8,
+          height: MediaQuery.of(context).size.height * 0.5,
           child: StreamBuilder(
             stream: _gameBloc.gameBoardContentStream,
-            initialData: const [
-              0,0,0,
-              0,0,0,
-              0,0,0
-            ],
-            builder: (context,snapshot){
+            initialData: const [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            builder: (context, snapshot) {
               dynamic gameData = snapshot.data;
               return Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -118,10 +170,9 @@ class _GameBoardState extends State<GameBoard> {
         SizedBox(
           width: double.infinity,
           height: MediaQuery.of(context).size.height * 0.1,
-          // color: Colors.red,
           child: Center(
             child: ElevatedButton(
-              onPressed: (){
+              onPressed: () {
                 _gameBloc.resetGame();
               },
               child: const Text("Reset Game"),
