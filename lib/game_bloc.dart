@@ -2,6 +2,7 @@ import "dart:async";
 
 class GameBloc {
   late bool _isPlayer1;
+  List<int> points = [0,0];
 
   List<int> gameProgress = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
@@ -27,6 +28,9 @@ class GameBloc {
   Stream<int> get winnerStream => _gameWinnerController.stream;
   Sink<int> get winnerSink => _gameWinnerController.sink;
 
+  final _playerPointsController = StreamController<List<int>>();
+  Stream<List<int>> get playerPointsStream => _playerPointsController.stream;
+  Sink<List<int>> get playerPointsSink => _playerPointsController.sink;
 
   void onButtonTap(int index) {
     gameProgress[index] = _isPlayer1 ? 1 : 2;
@@ -35,6 +39,7 @@ class GameBloc {
     isPlayer1Sink.add(_isPlayer1);
     int winner = checkWinner();
     if(winner == 1 || winner == 2 || winner == 0){
+      playerPointsSink.add(points);
       winnerSink.add(winner);
     }
   }
@@ -45,6 +50,13 @@ class GameBloc {
     gameBoardContentSink.add(gameProgress);
     isPlayer1Sink.add(_isPlayer1);
     winnerSink.add(-1);
+  }
+
+  void resetProgress(){
+    resetGame();
+    points[0] = 0;
+    points[1] = 0;
+    playerPointsSink.add(points);
   }
 
   // 0 1 2
@@ -60,6 +72,7 @@ class GameBloc {
         gameProgress[2] == 1 && gameProgress[5] == 1 && gameProgress[8] == 1 ||
         gameProgress[0] == 1 && gameProgress[4] == 1 && gameProgress[8] == 1 ||
         gameProgress[2] == 1 && gameProgress[4] == 1 && gameProgress[6] == 1 ) {
+      points[0] = points[0] + 1;
       return 1;
     }
     if (gameProgress[0] == 2 && gameProgress[1] == 2 && gameProgress[2] == 2 ||
@@ -70,6 +83,7 @@ class GameBloc {
         gameProgress[2] == 2 && gameProgress[5] == 2 && gameProgress[8] == 2 ||
         gameProgress[0] == 2 && gameProgress[4] == 2 && gameProgress[8] == 2 ||
         gameProgress[2] == 2 && gameProgress[4] == 2 && gameProgress[6] == 2 ) {
+      points[1] = points[1] + 1;
       return 2;
     }
     if(!gameProgress.contains(0)){
@@ -83,6 +97,7 @@ class GameBloc {
     gameBoardContentSink.add(gameProgress);
     isPlayer1Sink.add(_isPlayer1);
     winnerSink.add(checkWinner());
+    playerPointsSink.add(points);
     tappedButtonIndexStream.listen(onButtonTap);
   }
 
@@ -91,5 +106,6 @@ class GameBloc {
     _gameBoardContentController.close();
     _isPlayer1Controller.close();
     _gameWinnerController.close();
+    _playerPointsController.close();
   }
 }

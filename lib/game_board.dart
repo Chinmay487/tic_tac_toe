@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "./game_button.dart";
 import "./lines.dart";
 import "./game_bloc.dart";
+import "./scoreboard.dart";
 
 class GameBoard extends StatefulWidget {
   const GameBoard({Key? key}) : super(key: key);
@@ -127,12 +128,25 @@ class _GameBoardState extends State<GameBoard> {
 
   @override
   Widget build(BuildContext context) {
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        SizedBox(
-          width: double.infinity,
-          height: MediaQuery.of(context).size.height * 0.01,
+        Container(
+          margin: EdgeInsets.only(top: 20.0),
+          child: StreamBuilder(
+            stream: _gameBloc.playerPointsStream,
+              initialData: [0,0],
+              builder: (context,snapshot){
+              dynamic data = snapshot.data;
+              var player1Point = data[0];
+              var player2Point = data[1];
+                return ScoreBoard(
+                  player1Point: player1Point,
+                  player2Point: player2Point,
+                );
+              },
+          ),
         ),
         Center(
           child: StreamBuilder(
@@ -170,13 +184,22 @@ class _GameBoardState extends State<GameBoard> {
         SizedBox(
           width: double.infinity,
           height: MediaQuery.of(context).size.height * 0.1,
-          child: Center(
-            child: ElevatedButton(
-              onPressed: () {
-                _gameBloc.resetGame();
-              },
-              child: const Text("Reset Game"),
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  _gameBloc.resetGame();
+                },
+                child: const Text("Reset Game"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _gameBloc.resetProgress();
+                },
+                child: const Text("Reset Stats"),
+              )
+            ],
           ),
         ),
       ],
